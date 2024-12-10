@@ -22,13 +22,14 @@
       />
       <input
         type="password"
-        v-model="confirm_password"
+        v-model="passwordConfirmation"
         placeholder="Confirme sua senha"
         required
       />
-      <button type="submit">Cadastrar</button>
+      <button type="submit">Registrar</button>
     </form>
     <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+    <p>Já tem uma conta? <router-link to="/login">Login</router-link></p>
   </div>
 </template>
 
@@ -41,33 +42,27 @@ export default {
       name: '',
       email: '',
       password: '',
-      confirm_password: '', // Novo campo para confirmação de senha
-      errorMessage: null, // Para exibir mensagens de erro
+      passwordConfirmation: '',
+      errorMessage: null,
     };
   },
   methods: {
     async handleRegister() {
-      // Verificar se as senhas coincidem antes de enviar a requisição
-      if (this.password !== this.confirm_password) {
-        this.errorMessage = 'As senhas não coincidem.';
-        return;
-      }
-
       try {
-        // Enviar a requisição POST para a API para criar o usuário
+        // Envia os dados para criar o usuário
         const response = await axios.post('http://localhost:4000/auth', {
           name: this.name,
           email: this.email,
           password: this.password,
+          password_confirmation: this.passwordConfirmation,
         });
 
-        // Redireciona para o login se o cadastro for bem-sucedido
-        this.$router.push('/login');
+        // Sucesso no registro
+        alert('Conta criada com sucesso! Faça login para continuar.');
+        this.$router.push('/login'); // Redireciona para o login
       } catch (error) {
-        // Lidar com erros na requisição
         if (error.response && error.response.data) {
-          // Exibir a mensagem de erro retornada pela API
-          this.errorMessage = error.response.data.error || 'Erro ao criar conta.';
+          this.errorMessage = error.response.data.errors.full_messages.join(', ') || 'Erro ao criar conta.';
         } else {
           this.errorMessage = 'Erro de conexão. Tente novamente.';
         }
@@ -78,7 +73,6 @@ export default {
 </script>
 
 <style scoped>
-/* Estilo para a tela de registro */
 .register-container {
   max-width: 400px;
   margin: 50px auto;
@@ -96,7 +90,7 @@ export default {
 }
 .register-container button {
   padding: 10px 20px;
-  background: #ff6600; /* Cor laranja */
+  background: #007bff;
   color: white;
   border: none;
   border-radius: 5px;
@@ -104,6 +98,5 @@ export default {
 }
 .error {
   color: red;
-  margin-top: 10px;
 }
 </style>

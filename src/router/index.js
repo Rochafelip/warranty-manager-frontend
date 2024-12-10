@@ -2,8 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Login from '../views/Login.vue'; // Importe o componente de Login
 import Dashboard from '../views/Dashboard.vue'; // Importe o componente de Dashboard
 import Register from '../views/Register.vue'; // Importe o componente de Register
-import AddWarranty from '../views/AddWarranty.vue';
-
+import CreateInvoice from '../views/CreateInvoice.vue'; // Página para criar nota fiscal
 
 const routes = [
   {
@@ -17,33 +16,41 @@ const routes = [
     component: Login,
   },
   {
+    path: '/register', // Rota para a tela de registro
+    name: 'Register',
+    component: Register,
+  },
+  {
     path: '/dashboard',
     name: 'Dashboard',
     component: Dashboard,
-    beforeEnter: (to, from, next) => {
-      const token = sessionStorage.getItem('token');
-      if (token) {
-        next();  // Se houver um token, permitir acesso
-      } else {
-        next('/login');  // Caso contrário, redirecionar para o login
-      }
-    },
+    meta: { requiresAuth: true }, // Requer autenticação
   },
   {
-    path: '/register', // Definindo a rota de criação de usuário
-    name: 'register',
-    component: Register, // Este é o seu componente de registro
-  },
-  {
-    path: '/add-invoice',
-    name: 'CreateInvoice', // Nome da rota atualizado
-    component: AddWarranty, // Componente atualizado para o correto
+    path: '/create-invoice',
+    name: 'CreateInvoice',
+    component: CreateInvoice,
+    meta: { requiresAuth: true }, // Proteger rota por autenticação
   },
 ];
 
 const router = createRouter({
   history: createWebHistory(), // Usa o histórico da web
   routes, // Define as rotas
+});
+
+
+
+router.beforeEach((to, from, next) => {
+  const isLoggedIn = sessionStorage.getItem('access-token'); // Verifica se o token está salvo
+
+  if (to.meta.requiresAuth && !isLoggedIn) {
+    next('/login'); // Redireciona para login se não autenticado
+  } else if ((to.name === 'Login' || to.name === 'Register') && isLoggedIn) {
+    next('/dashboard'); // Impede acesso ao login se já logado
+  } else {
+    next(); // Permite a navegação
+  }
 });
 
 export default router;

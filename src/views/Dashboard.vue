@@ -87,7 +87,7 @@ export default {
     },
     addInvoice() {
       // Redireciona para a página de adicionar nota fiscal (aqui você pode ajustar a rota conforme necessário)
-      this.$router.push('/add-invoice');
+      this.$router.push('/create-invoice');
     }
   }
 };
