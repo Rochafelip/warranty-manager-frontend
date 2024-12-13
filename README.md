@@ -6,11 +6,10 @@ Request - http://localhost:5173/login
 
 ![{7BDB1217-3E03-4A08-A84F-6D8988AF5B97}](https://github.com/user-attachments/assets/945e608b-33e5-44aa-a209-38b23e1fc756)
 
-
 ## Create a User
 Request - http://localhost:5173/register
 
-![{B00F67AD-555A-4B96-B7A0-D4394E1928F1}](https://github.com/user-attachments/assets/eac809d8-4620-4e76-9f8d-fff1a3b6be55)
+![{43AF95B8-A5EE-4846-86C1-63E247F67AC7}](https://github.com/user-attachments/assets/2a5ad01f-8a36-4269-b28f-89f95c5c41ac)
 
 ## Dashboard
 Request - http://localhost:5173/dashboard
