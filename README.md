@@ -21,5 +21,8 @@ Request - http://localhost:5173/create-invoice
 
 ![{D64D452E-6852-4BE0-B5CB-2E6FEC6C1A54}](https://github.com/user-attachments/assets/9d47470e-dd66-424a-9dd7-076deb9ea419)
 
+## Info-Invoice
+Request - http://localhost:5173/invoice-details/:id
 
+![{D9167737-B1F3-4D4B-8FF6-847FDD9DF7D4}](https://github.com/user-attachments/assets/f47c8c94-c21a-46d6-ab4e-7eb6321e6c53)
 
