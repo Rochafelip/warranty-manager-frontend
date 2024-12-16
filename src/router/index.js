@@ -3,12 +3,15 @@ import Login from '../views/Login.vue'; // Importe o componente de Login
 import Dashboard from '../views/Dashboard.vue'; // Importe o componente de Dashboard
 import Register from '../views/Register.vue'; // Importe o componente de Register
 import CreateInvoice from '../views/CreateInvoice.vue'; // Página para criar nota fiscal
+import CreateProduct from '../views/CreateProduct.vue';
+import InvoiceDetails from '../views/InvoiceDetails.vue'; 
+import UpdateInvoice from '../views/UpdateInvoice.vue';
+import EditProduct from '../views/EditProduct.vue';
 
 const routes = [
   {
     path: '/',
-    name: 'Login',
-    component: Login,
+    redirect: '/login', // Redireciona explicitamente para a rota de login
   },
   {
     path: '/login',
@@ -32,6 +35,41 @@ const routes = [
     component: CreateInvoice,
     meta: { requiresAuth: true }, // Proteger rota por autenticação
   },
+  {
+    path: '/add-products/:invoiceId',
+    name: 'CreateProduct',
+    component: CreateProduct,
+    props: true,
+    meta: { requiresAuth: true }, // Adiciona a proteção de autenticação
+  },
+  {
+    path: '/invoice-details/:id',  // Passando o ID da invoice pela URL
+    name: 'InvoiceDetails',
+    component: InvoiceDetails,
+    props: true,  // Passa os parâmetros como props para o componente
+  },
+  {
+    path:'/invoices/edit/:id',
+    name: 'UpdateInvoice',
+    component: UpdateInvoice,
+    props: true, // Permite passar o 'id' como prop
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/edit-product/:productId',
+    name: 'EditProduct',
+    component: EditProduct,
+    props: true, // Permite passar o 'productId' como prop
+    meta: { requiresAuth: true },
+  }
+
+  // {
+  //   path: '/add-store/:invoiceId',
+  //   name: 'AddStore',
+  //   component: () => import('@/views/AddStore.vue'),
+  //   props: true,
+  // },
+
 ];
 
 const router = createRouter({
@@ -39,17 +77,20 @@ const router = createRouter({
   routes, // Define as rotas
 });
 
-
-
 router.beforeEach((to, from, next) => {
-  const isLoggedIn = sessionStorage.getItem('access-token'); // Verifica se o token está salvo
+  const isLoggedIn = sessionStorage.getItem('access-token'); // Verifica se o token existe
 
+  // Se o usuário está acessando uma página que requer autenticação, mas não está logado
   if (to.meta.requiresAuth && !isLoggedIn) {
-    next('/login'); // Redireciona para login se não autenticado
-  } else if ((to.name === 'Login' || to.name === 'Register') && isLoggedIn) {
-    next('/dashboard'); // Impede acesso ao login se já logado
-  } else {
-    next(); // Permite a navegação
+    next('/login'); // Redireciona para a página de login
+  }
+  // Se o usuário está tentando acessar Login ou Register já logado, redireciona para o Dashboard
+  else if ((to.name === 'Login' || to.name === 'Register') && isLoggedIn) {
+    next('/dashboard');
+  }
+  // Permite navegação para todas as outras rotas
+  else {
+    next();
   }
 });
 

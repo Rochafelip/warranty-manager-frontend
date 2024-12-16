@@ -22,55 +22,11 @@
       </div>
       <button type="submit">Criar Nota Fiscal</button>
     </form>
-
-    <div v-if="invoiceId">
-      <h2>Adicionar Produtos</h2>
-      
-      <!-- Formulário para adicionar produtos -->
-      <form @submit.prevent="addProduct">
-        <div>
-          <label>Nome do Produto:</label>
-          <input type="text" v-model="product.name" required />
-        </div>
-        <div>
-          <label>Quantidade:</label>
-          <input type="number" v-model="product.quantity" required />
-        </div>
-        <div>
-          <label>Preço:</label>
-          <input type="number" v-model="product.price" required />
-        </div>
-        <button type="submit">Adicionar Produto</button>
-      </form>
-
-      <ul>
-        <li v-for="(p, index) in productList" :key="index">
-          {{ p.name }} - {{ p.quantity }} - {{ p.price }}
-        </li>
-      </ul>
-    </div>
-
-    <div v-if="invoiceId">
-      <h2>Associar Loja</h2>
-      
-      <!-- Formulário para associar uma loja -->
-      <form @submit.prevent="addStore">
-        <div>
-          <label>Nome da Loja:</label>
-          <input type="text" v-model="store.name" required />
-        </div>
-        <div>
-          <label>Endereço:</label>
-          <input type="text" v-model="store.address" required />
-        </div>
-        <button type="submit">Adicionar Loja</button>
-      </form>
-    </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios'; // Importa o axios aqui
+import axios from 'axios';
 
 export default {
   data() {
@@ -81,17 +37,6 @@ export default {
         issue_date: '',
         pdf_url: null, // Para armazenar o arquivo PDF
       },
-      invoiceId: null, // ID da nota fiscal criada
-      product: {
-        name: '',
-        quantity: '',
-        price: '',
-      },
-      productList: [], // Lista de produtos adicionados
-      store: {
-        name: '',
-        address: '',
-      },
     };
   },
   methods: {
@@ -101,61 +46,33 @@ export default {
     },
     async createInvoice() {
       try {
-        const token = sessionStorage.getItem('access-token');  // Supondo que o token está no sessionStorage
+        const authorizationHeader = sessionStorage.getItem('Authorization');
 
-        if (!token) {
+        if (!authorizationHeader) {
           alert('Token de autenticação não encontrado');
           return;
         }
 
-        // Cria um objeto FormData para enviar o arquivo e os dados
+        // Cria o objeto FormData
         const formData = new FormData();
         formData.append('invoice[invoice_number]', this.invoice.invoice_number);
         formData.append('invoice[issue_date]', this.invoice.issue_date);
         formData.append('invoice[purchase_date]', this.invoice.purchase_date);
-        formData.append('invoice[pdf]', this.invoice.pdf_url); // PDF
+        formData.append('invoice[pdf]', this.invoice.pdf_url);
 
-        // Envia a requisição para criar a invoice com o token no cabeçalho
         const response = await axios.post('http://localhost:4000/invoices', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${token}`,  // Token de autenticação
+            'Authorization': authorizationHeader,
           },
         });
 
-        this.invoiceId = response.data.id; // ID retornado pela API
+        const invoiceId = response.data.id; // Captura o ID da Invoice
         alert('Nota fiscal criada com sucesso!');
+        this.$router.push(`/add-products/${invoiceId}`); // Redireciona para a tela de adicionar produtos
       } catch (error) {
         console.error('Erro ao criar a nota fiscal:', error);
         alert('Erro ao criar a nota fiscal.');
-      }
-    },
-    async addProduct() {
-      try {
-        const productData = { ...this.product, invoice_id: this.invoiceId };
-        const response = await axios.post('http://localhost:4000/products', productData, {
-          headers: {
-            'Authorization': `Bearer ${sessionStorage.getItem('access-token')}`, // Envia o token de autenticação
-          },
-        });
-        this.productList.push(response.data); // Adiciona o produto à lista local
-        this.product = { name: '', quantity: '', price: '' }; // Limpa o formulário
-        alert('Produto adicionado com sucesso!');
-      } catch (error) {
-        alert('Erro ao adicionar o produto.');
-      }
-    },
-    async addStore() {
-      try {
-        const storeData = { ...this.store, invoice_id: this.invoiceId };
-        await axios.post('http://localhost:4000/stores', storeData, {
-          headers: {
-            'Authorization': `Bearer ${sessionStorage.getItem('access-token')}`, // Envia o token de autenticação
-          },
-        });
-        alert('Loja associada com sucesso!');
-      } catch (error) {
-        alert('Erro ao associar a loja.');
       }
     },
   },
@@ -171,11 +88,13 @@ export default {
   border-radius: 5px;
   background: #f9f9f9;
 }
+
 form {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
+
 button {
   padding: 10px;
   background-color: #007bff;
@@ -184,6 +103,7 @@ button {
   border-radius: 4px;
   cursor: pointer;
 }
+
 button:hover {
   background-color: #0056b3;
 }
