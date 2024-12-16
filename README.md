@@ -4,22 +4,25 @@
 ## Login
 Request - http://localhost:5173/login
 
-![{C72AAAE6-708C-46CD-898D-EB315E47D64F}](https://github.com/user-attachments/assets/980adb41-f7fc-4325-9b8c-eea5db06009e)
+![{7BDB1217-3E03-4A08-A84F-6D8988AF5B97}](https://github.com/user-attachments/assets/945e608b-33e5-44aa-a209-38b23e1fc756)
 
 ## Create a User
 Request - http://localhost:5173/register
 
-![{B00F67AD-555A-4B96-B7A0-D4394E1928F1}](https://github.com/user-attachments/assets/eac809d8-4620-4e76-9f8d-fff1a3b6be55)
+![{43AF95B8-A5EE-4846-86C1-63E247F67AC7}](https://github.com/user-attachments/assets/2a5ad01f-8a36-4269-b28f-89f95c5c41ac)
 
 ## Dashboard
 Request - http://localhost:5173/dashboard
 
-![{7E4E4874-AA8E-45B7-B4F8-6E57FBE6E01A}](https://github.com/user-attachments/assets/d555edd8-ef03-4bdd-a646-5e8b125de4af)
+![{EF87A4C9-62E7-4C68-9BDD-DA71B382699B}](https://github.com/user-attachments/assets/fce4a670-3483-4215-a539-c07dcd7e4c85)
 
 ## Add-Invoice
 Request - http://localhost:5173/create-invoice
 
 ![{D64D452E-6852-4BE0-B5CB-2E6FEC6C1A54}](https://github.com/user-attachments/assets/9d47470e-dd66-424a-9dd7-076deb9ea419)
 
+## Info-Invoice
+Request - http://localhost:5173/invoice-details/:id
 
+![{D9167737-B1F3-4D4B-8FF6-847FDD9DF7D4}](https://github.com/user-attachments/assets/f47c8c94-c21a-46d6-ab4e-7eb6321e6c53)
 
