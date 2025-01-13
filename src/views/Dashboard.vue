@@ -44,7 +44,7 @@
         <tbody>
           <tr v-for="invoice in invoices" :key="invoice.id">
             <td>{{ invoice.invoice_number }}</td>
-            <td>{{ invoice.issue_date }}</td>
+            <td>{{ formatDate(invoice.issue_date) }}</td> <!-- Aqui está a formatação da data -->
             <td>
               <ul>
                 <li v-for="product in invoice.products" :key="product.id">{{ product.name }}</li>
@@ -154,6 +154,15 @@ export default {
       }
     },
 
+    // Formatar a data para o padrão DD-MM-AAAA
+    formatDate(date) {
+      const d = new Date(date);
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0'); // O mês em JS começa de 0
+      const year = d.getFullYear();
+      return `${day}/${month}/${year}`;
+    },
+
     // Ações para cada nota fiscal
     viewDetails(id) {
       this.$router.push({ name: 'InvoiceDetails', params: { id } });
@@ -163,31 +172,31 @@ export default {
       this.$router.push(`/invoices/edit/${id}`);
     },
     deleteInvoice(id) {
-  // Exibir um alerta de confirmação
-  if (confirm("Tem certeza que deseja excluir esta nota fiscal? Esta ação não pode ser desfeita!")) {
-    // Enviar a requisição DELETE ao backend
-    fetch(`http://localhost:4000/invoices/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': sessionStorage.getItem('Authorization'), // Se necessário, incluir token de autenticação
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Erro ao excluir a nota fiscal.");
-        }
-        alert("Nota fiscal excluída com sucesso!");
-        this.fetchInvoices(); // Atualiza a lista após deletar
-      })
-      .catch((error) => {
-        console.error("Erro:", error);
-        alert("Ocorreu um erro ao excluir a nota fiscal. Tente novamente.");
-      });
-  } else {
-    console.log("Exclusão cancelada pelo usuário.");
-  }
-},
+      // Exibir um alerta de confirmação
+      if (confirm("Tem certeza que deseja excluir esta nota fiscal? Esta ação não pode ser desfeita!")) {
+        // Enviar a requisição DELETE ao backend
+        fetch(`http://localhost:4000/invoices/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': sessionStorage.getItem('Authorization'), // Se necessário, incluir token de autenticação
+          },
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Erro ao excluir a nota fiscal.");
+            }
+            alert("Nota fiscal excluída com sucesso!");
+            this.fetchInvoices(); // Atualiza a lista após deletar
+          })
+          .catch((error) => {
+            console.error("Erro:", error);
+            alert("Ocorreu um erro ao excluir a nota fiscal. Tente novamente.");
+          });
+      } else {
+        console.log("Exclusão cancelada pelo usuário.");
+      }
+    },
 
     addInvoice() {
       this.$router.push('/create-invoice');

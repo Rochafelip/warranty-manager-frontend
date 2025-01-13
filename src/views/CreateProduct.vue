@@ -1,7 +1,6 @@
 <template>
   <div class="add-products-container">
     <h1>Adicionar Produtos</h1>
-
     <!-- Formulário para adicionar produtos -->
     <form @submit.prevent="addProduct">
       <div class="form-group">
@@ -61,6 +60,13 @@
 
       <button type="submit" :disabled="isCreatingStore" class="btn-primary">
         Adicionar Produto
+      </button>
+      <button 
+        type="button" 
+        @click="goBack" 
+        class="btn-secondary"
+      >
+        Voltar
       </button>
     </form>
 
@@ -169,6 +175,9 @@ export default {
         alert("Erro ao adicionar o produto.");
       }
     },
+    goBack() {
+      this.$router.go(-1); // Voltar à página anterior
+    },
   },
   mounted() {
     this.fetchStores(); // Busca as lojas ao montar o componente
@@ -241,6 +250,18 @@ button.btn-primary {
 
 button.btn-primary:hover {
   background-color: darkorange;
+}
+
+button.btn-secondary {
+  background-color: var(--gray-medium);
+  color: var(--gray-dark);
+  margin-top: 10px;
+  border: 1px solid var(--gray-dark);
+}
+
+button.btn-secondary:hover {
+  background-color: var(--gray-dark);
+  color: var(--white);
 }
 
 .product-list {
