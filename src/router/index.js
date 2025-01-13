@@ -4,9 +4,10 @@ import Dashboard from '../views/Dashboard.vue'; // Importe o componente de Dashb
 import Register from '../views/Register.vue'; // Importe o componente de Register
 import CreateInvoice from '../views/CreateInvoice.vue'; // Página para criar nota fiscal
 import CreateProduct from '../views/CreateProduct.vue';
-import InvoiceDetails from '../views/InvoiceDetails.vue'; 
+import InvoiceDetails from '../views/InvoiceDetails.vue';
 import UpdateInvoice from '../views/UpdateInvoice.vue';
 import EditProduct from '../views/EditProduct.vue';
+import ChangeStore from '../views/ChangeStore.vue';
 
 const routes = [
   {
@@ -49,7 +50,7 @@ const routes = [
     props: true,  // Passa os parâmetros como props para o componente
   },
   {
-    path:'/invoices/edit/:id',
+    path: '/invoices/edit/:id',
     name: 'UpdateInvoice',
     component: UpdateInvoice,
     props: true, // Permite passar o 'id' como prop
@@ -61,6 +62,11 @@ const routes = [
     component: EditProduct,
     props: true, // Permite passar o 'productId' como prop
     meta: { requiresAuth: true },
+  },
+  {
+    path: '/change-store/:storeId',
+    name: 'ChangeStore',
+    component: ChangeStore, // O componente que será exibido nessa rota
   }
 
   // {

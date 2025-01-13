@@ -30,7 +30,7 @@
   
         <div class="form-actions">
           <button type="submit" class="btn-submit">Salvar Alterações</button>
-          <button type="button" @click="cancelEdit" class="btn-cancel">Cancelar</button>
+          <button type="button" @click="cancelEdit" class="btn-cancel">Voltar</button>
         </div>
       </form>
     </div>
@@ -84,10 +84,9 @@
         } catch (error) {
           console.error('Erro ao atualizar o produto:', error);
         }
-      },
-  
+      },  
       cancelEdit() {
-        this.$router.push('/dashboard');
+        this.$router.go(-1);
       },
     },
   };

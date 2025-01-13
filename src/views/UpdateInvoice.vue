@@ -14,10 +14,9 @@
                     <label for="issueDate">Data de Emissão</label>
                     <input type="date" id="issueDate" v-model="invoice.issue_date" required />
                 </div>
-
                 <!-- Listagem de Produtos -->
                 <div class="products-list">
-                    <h2>Produtos</h2>
+                    <h2>Produto</h2>
                     <ul>
                         <li v-for="product in products" :key="product.id">
                             <div class="product-item">
@@ -30,7 +29,8 @@
                                 </p>
                                 <button type="button" @click="editProduct(product.id)" class="btn-edit-product">Editar
                                     Produto</button>
-
+                                <button type="button" @click="editStore(product.store.id)"
+                                    class="btn-edit-store">Modificar Loja</button>
                             </div>
                         </li>
                     </ul>
@@ -52,7 +52,6 @@
     </div>
 </template>
 
-
 <script>
 import axios from 'axios';
 
@@ -66,6 +65,8 @@ export default {
             userName: sessionStorage.getItem('user.name') || 'nome',
             isLoading: false,  // Controle de loading
             message: null,  // Mensagem de sucesso ou erro
+
+            products: [],  // Armazenará os produtos relacionados
         };
     },
     computed: {
@@ -93,7 +94,7 @@ export default {
 
                 // Carrega os produtos associados à nota fiscal
                 const productResponse = await axios.get(`http://localhost:4000/products`, {
-                    params: { invoice_id: invoiceId }, // Passa o invoice_id como parâmetro
+                    params: { q: { invoice_id_eq: invoiceId } },  // Aqui é usado o ransack
                     headers: {
                         Authorization: sessionStorage.getItem('Authorization'),
                     },
@@ -109,8 +110,22 @@ export default {
             } finally {
                 this.isLoading = false;
             }
-        }
-        ,
+        },
+
+        fetchProductsByInvoice(invoiceId) {
+            this.$axios.get(`/products`, {
+                params: { q: { invoice_id_eq: invoiceId } },  // Aqui é usado o ransack
+                headers: {
+                    Authorization: sessionStorage.getItem('Authorization'),
+                },
+            })
+                .then(response => {
+                    this.products = response.data;  // Atualiza os produtos no Vue
+                })
+                .catch(error => {
+                    console.error('Erro ao buscar produtos:', error);
+                });
+        },
 
         // Atualiza a nota fiscal
         async updateInvoice() {
@@ -133,6 +148,11 @@ export default {
         // Função de edição de produto (a lógica pode ser expandida conforme necessidade)
         editProduct(productId) {
             this.$router.push(`/edit-product/${productId}`);
+        },
+
+        editStore(storeId) {
+            console.log('ID da Loja:', storeId);
+            this.$router.push(`/change-store/${storeId}`);
         },
 
         // Cancela a edição e retorna para a lista de notas fiscais

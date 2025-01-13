@@ -4,103 +4,200 @@
 
     <!-- Formulário para adicionar produtos -->
     <form @submit.prevent="addProduct">
-      <div>
+      <div class="form-group">
         <label>Nome do Produto:</label>
         <input type="text" v-model="product.name" required />
       </div>
-      <div>
+      <div class="form-group">
         <label>Descrição:</label>
         <input type="text" v-model="product.description" required />
       </div>
-      <div>
+      <div class="form-group">
         <label>Categoria:</label>
-        <input type="number" v-model="product.category" required />
+        <input type="text" v-model="product.category" required />
       </div>
-      <div>
+      <div class="form-group">
         <label>Preço:</label>
         <input type="number" v-model="product.price" required />
       </div>
-      <div>
+      <div class="form-group">
         <label>Serial Number:</label>
         <input type="text" v-model="product.serial_number" required />
       </div>
-      <div>
+      <div class="form-group">
         <label>Data de Expiração da Garantia:</label>
         <input type="date" v-model="product.warranty_expiry_date" required />
       </div>
-      <div>
-        <label>ID da Loja:</label>
-        <input type="number" v-model="product.store_id" required />
+      <div class="form-group">
+        <label>Loja:</label>
+        <select v-model="selectedStoreId">
+          <option disabled value="">Selecione uma loja</option>
+          <option v-for="store in stores" :key="store.id" :value="store.id">
+            {{ store.name }}
+          </option>
+          <option value="new">Adicionar nova loja</option>
+        </select>
       </div>
-      <button type="submit">Adicionar Produto</button>
+
+      <!-- Formulário para adicionar nova loja -->
+      <div v-if="selectedStoreId === 'new'" class="new-store-form">
+        <h2>Adicionar Nova Loja</h2>
+        <div class="form-group">
+          <label>Nome da Loja:</label>
+          <input type="text" v-model="newStore.name" required />
+        </div>
+        <div class="form-group">
+          <label>Contato:</label>
+          <input type="email" v-model="newStore.contact" required />
+        </div>
+        <div class="form-group">
+          <label>Endereço:</label>
+          <input type="text" v-model="newStore.address" required />
+        </div>
+        <button type="button" @click="addNewStore" class="btn-primary">
+          Salvar Loja
+        </button>
+      </div>
+
+      <button type="submit" :disabled="isCreatingStore" class="btn-primary">
+        Adicionar Produto
+      </button>
     </form>
 
-    <ul>
+    <ul class="product-list">
       <li v-for="(p, index) in productList" :key="index">
         {{ p.name }} - {{ p.quantity }} - {{ p.price }}
       </li>
     </ul>
-
-    <button @click="goToStore">Associar Loja</button>
   </div>
 </template>
 
-  
 <script>
-import axios from 'axios';
+import axios from "axios";
 
 export default {
   data() {
     return {
       product: {
-        name: '',
-        description: '',
-        category: '',
-        price: '',
-        serial_number: '',
-        warranty_expiry_date: '',
-        store_id: '',
+        name: "",
+        description: "",
+        category: "",
+        price: "",
+        serial_number: "",
+        warranty_expiry_date: "",
+      },
+      selectedStoreId: "", // ID da loja selecionada
+      stores: [], // Lista de lojas disponíveis
+      newStore: {
+        name: "",
+        contact: "",
+        address: "",
       },
       productList: [],
+      isCreatingStore: false, // Para bloquear o botão enquanto a loja está sendo criada
     };
   },
-  props: ['invoiceId'], // Recebe o ID da invoice via rota
+  props: ["invoiceId"],
   methods: {
-    async addProduct() {
+    async fetchStores() {
       try {
-        const authorizationHeader = sessionStorage.getItem('Authorization');
-        const productData = { ...this.product, invoice_id: this.invoiceId };
-
-        const response = await axios.post('http://localhost:4000/products', { product: productData }, {
-          headers: {
-            'Authorization': authorizationHeader,
-            'Content-Type': 'application/json', // Para garantir que o corpo da requisição seja JSON
-          },
+        const authorizationHeader = sessionStorage.getItem("Authorization");
+        const response = await axios.get("http://localhost:4000/stores", {
+          headers: { Authorization: authorizationHeader },
         });
-
-        this.productList.push(response.data);
-        this.product = { name: '', description: '', category: '', price: '', serial_number: '', warranty_expiry_date: '', store_id: '' };
-        alert('Produto adicionado com sucesso!');
+        this.stores = response.data;
       } catch (error) {
-        alert('Erro ao adicionar o produto.');
+        console.error("Erro ao buscar lojas:", error);
       }
     },
-    goToStore() {
-      this.$router.push(`/add-store/${this.invoiceId}`);
+    async addNewStore() {
+      try {
+        this.isCreatingStore = true; // Bloqueia ações enquanto a loja está sendo criada
+        const authorizationHeader = sessionStorage.getItem("Authorization");
+        const response = await axios.post(
+          "http://localhost:4000/stores",
+          { store: this.newStore },
+          {
+            headers: { Authorization: authorizationHeader },
+          }
+        );
+
+        // Adiciona a nova loja à lista e seleciona automaticamente
+        this.stores.push(response.data);
+        this.selectedStoreId = response.data.id;
+
+        // Reseta os campos do formulário de nova loja
+        this.newStore = { name: "", contact: "", address: "" };
+        alert("Loja criada com sucesso!");
+      } catch (error) {
+        alert("Erro ao criar a loja.");
+      } finally {
+        this.isCreatingStore = false;
+      }
     },
+    async addProduct() {
+      try {
+        const authorizationHeader = sessionStorage.getItem("Authorization");
+        const productData = {
+          ...this.product,
+          store_id: this.selectedStoreId,
+          invoice_id: this.invoiceId,
+        };
+
+        const response = await axios.post(
+          "http://localhost:4000/products",
+          { product: productData },
+          {
+            headers: {
+              Authorization: authorizationHeader,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        this.productList.push(response.data);
+        this.product = {
+          name: "",
+          description: "",
+          category: "",
+          price: "",
+          serial_number: "",
+          warranty_expiry_date: "",
+        };
+        alert("Produto adicionado com sucesso!");
+      } catch (error) {
+        alert("Erro ao adicionar o produto.");
+      }
+    },
+  },
+  mounted() {
+    this.fetchStores(); // Busca as lojas ao montar o componente
   },
 };
 </script>
 
-  
 <style scoped>
-.create-invoice-container {
-  max-width: 600px;
+/* Paleta de cores do Softex PE */
+:root {
+  --orange-soft: #ff6a00;
+  --gray-light: #f4f4f4;
+  --gray-dark: #333;
+  --white: #fff;
+}
+
+.add-products-container {
+  max-width: 700px;
   margin: 50px auto;
   padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  background: #f9f9f9;
+  background-color: var(--gray-light);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+  color: var(--orange-soft);
+  margin-bottom: 20px;
 }
 
 form {
@@ -109,17 +206,55 @@ form {
   gap: 15px;
 }
 
-button {
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-weight: bold;
+  color: var(--gray-dark);
+  margin-bottom: 5px;
+}
+
+input,
+select {
   padding: 10px;
-  background-color: #007bff;
-  color: white;
+  border: 1px solid var(--gray-dark);
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+button {
+  padding: 10px 15px;
+  font-size: 16px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
 }
 
-button:hover {
-  background-color: #0056b3;
+button.btn-primary {
+  background-color: var(--orange-soft);
+  color: var(--white);
+  transition: background-color 0.3s;
+}
+
+button.btn-primary:hover {
+  background-color: darkorange;
+}
+
+.product-list {
+  margin-top: 20px;
+  padding: 0;
+  list-style: none;
+}
+
+.product-list li {
+  padding: 10px;
+  border-bottom: 1px solid var(--gray-dark);
+}
+
+.product-list li:last-child {
+  border-bottom: none;
 }
 </style>
-  

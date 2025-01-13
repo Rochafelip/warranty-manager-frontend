@@ -3,19 +3,21 @@
     <!-- Navbar -->
     <nav class="navbar">
       <div class="navbar-content">
-        <div class="navbar-user">Bem-vindo, {{ capitalizedUserName }}</div>
+        <div class="navbar-user"><h1>Bem-vindo, {{ capitalizedUserName }}</h1></div>
         <ul class="navbar-links">
           <li><a href="/dashboard">Dashboard</a></li>
           <li><a href="/invoices">Notas Fiscais</a></li>
           <li><a href="/profile">Perfil</a></li>
           <li><a href="/logout">Sair</a></li>
-        </ul>
+        </ul>        
+      </div>
+      <div>
+          <h2>Minhas Notas Fiscais</h2>
       </div>
     </nav>
 
     <!-- Dashboard -->
-    <div class="dashboard-container">
-      <h1>Minhas Notas Fiscais</h1>
+    <div class="dashboard-container">      
 
       <!-- Botões principais -->
       <div class="actions">
