@@ -14,7 +14,8 @@ Request - http://localhost:5173/register
 ## Dashboard
 Request - http://localhost:5173/dashboard
 
-![{EF87A4C9-62E7-4C68-9BDD-DA71B382699B}](https://github.com/user-attachments/assets/fce4a670-3483-4215-a539-c07dcd7e4c85)
+![{DAE40E55-AC6D-4805-AD2E-355206E6433B}](https://github.com/user-attachments/assets/7bd985bb-0c35-4df7-84ca-3d478ae78a51)
+
 
 ## Add-Invoice
 Request - http://localhost:5173/create-invoice
