@@ -61,7 +61,8 @@
         try {
           // Busca produtos associados à nota fiscal
           const productResponse = await axios.get('http://localhost:4000/products', {
-            params: { invoice_id: invoiceId },
+            q: { invoice_id_eq: invoiceId }, // Ransack busca por "igual"
+  
             headers: { Authorization: sessionStorage.getItem('Authorization') },
           });
           this.products = productResponse.data;

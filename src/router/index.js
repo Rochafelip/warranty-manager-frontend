@@ -66,7 +66,9 @@ const routes = [
   {
     path: '/change-store/:storeId',
     name: 'ChangeStore',
-    component: ChangeStore, // O componente que será exibido nessa rota
+    component: ChangeStore,    
+    props: true, 
+    meta: { requiresAuth: true },
   }
 
   // {

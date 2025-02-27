@@ -3,21 +3,20 @@
     <!-- Navbar -->
     <nav class="navbar">
       <div class="navbar-content">
-        <div class="navbar-user"><h1>Bem-vindo, {{ capitalizedUserName }}</h1></div>
+        <div>
+          <h1>Minhas Notas Fiscais</h1>
+        </div>
         <ul class="navbar-links">
           <li><a href="/dashboard">Dashboard</a></li>
           <li><a href="/invoices">Notas Fiscais</a></li>
-          <li><a href="/profile">Perfil</a></li>
+          <li><a href="/profile">{{ capitalizedUserName }}</a></li>
           <li><a href="/logout">Sair</a></li>
-        </ul>        
-      </div>
-      <div>
-          <h2>Minhas Notas Fiscais</h2>
+        </ul>
       </div>
     </nav>
 
     <!-- Dashboard -->
-    <div class="dashboard-container">      
+    <div class="dashboard-container">
 
       <!-- Botões principais -->
       <div class="actions">
@@ -43,8 +42,8 @@
         </thead>
         <tbody>
           <tr v-for="invoice in invoices" :key="invoice.id">
-            <td>{{ invoice.invoice_number }}</td>
-            <td>{{ formatDate(invoice.issue_date) }}</td> <!-- Aqui está a formatação da data -->
+            <td class="invoice-number">{{ invoice.invoice_number }}</td>
+            <td>{{ formatDate(invoice.issue_date) }}</td>
             <td>
               <ul>
                 <li v-for="product in invoice.products" :key="product.id">{{ product.name }}</li>
@@ -231,12 +230,14 @@ export default {
 }
 
 .btn-icon.edit {
-  background-color: #ffc107; /* Cor amarelo para editar */
+  background-color: #ffc107;
+  /* Cor amarelo para editar */
   color: #fff;
 }
 
 .btn-icon.edit:hover {
-  background-color: #e0a800; /* Tom mais escuro no hover */
+  background-color: #e0a800;
+  /* Tom mais escuro no hover */
 }
 
 .btn-icon.delete {
@@ -259,10 +260,15 @@ export default {
 .navbar {
   background-color: #333;
   color: white;
+  width: auto;
+  height: auto;
   padding: 10px 20px;
+  margin-bottom: 10px;
+  margin-top: 5px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-radius: 10px;
   flex-wrap: wrap;
 }
 
@@ -271,13 +277,7 @@ export default {
   justify-content: space-between;
   width: 100%;
   flex-wrap: wrap;
-}
-
-.navbar-user {
-  color: white;
-  font-size: 18px;
-  font-weight: bold;
-  margin-right: auto;
+  align-items: center;
 }
 
 .navbar-logo {
@@ -290,9 +290,8 @@ export default {
 .navbar-links {
   list-style-type: none;
   display: flex;
-  gap: 20px;
-  margin: 0;
-  padding: 0;
+  gap: 15px;
+  margin: 10px;
 }
 
 .navbar-links li a {
@@ -320,8 +319,10 @@ export default {
 /* Estilo do Container do Dashboard */
 .dashboard-container {
   padding: 20px;
-  background-color: #f9f9f9;
+  background-color: rgb(199, 195, 195);
   border-radius: 10px;
+  width: auto;
+  height: auto;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -348,7 +349,7 @@ table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
-  background-color: white;
+  background-color: rgb(252, 217, 193);
   border-radius: 5px;
   overflow: hidden;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -357,7 +358,7 @@ table {
 th,
 td {
   padding: 15px;
-  border: 1px solid #ddd;
+  border: 1px solid #000000;
   text-align: center;
 }
 
@@ -369,6 +370,10 @@ th {
 td ul {
   padding: 0;
   list-style-type: none;
+}
+
+.invoice-number {
+  font-weight: bold;
 }
 
 .error {

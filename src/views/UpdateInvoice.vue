@@ -172,7 +172,7 @@ export default {
     padding: 20px;
     max-width: 600px;
     margin: 0 auto;
-    background-color: #f9f9f9;
+    background-color: #c7c3c3;
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
@@ -196,10 +196,11 @@ export default {
 
 .form-actions {
     margin-top: 20px;
+    
 }
 
 .btn-submit {
-    background-color: #ff6600;
+    background-color: rgb(99, 163, 2);
     color: white;
     padding: 10px 20px;
     border: none;
@@ -214,7 +215,6 @@ export default {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    margin-left: 10px;
 }
 
 .btn-edit-product {
@@ -226,6 +226,20 @@ export default {
     cursor: pointer;
 }
 
+.product-item {
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #000000;
+    border-radius: 15px;
+    margin: 10px;
+    box-shadow: 6px 10px 5px rgba(0, 0, 0, 0.4);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;    
+    border-radius: 15px;
+}
 .loading {
     text-align: center;
     font-size: 16px;
@@ -260,5 +274,9 @@ button {
     margin-bottom: 20px;
     margin-right: 15px;
     transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+li {
+    list-style: none;
 }
 </style>

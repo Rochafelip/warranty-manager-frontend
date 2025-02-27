@@ -1,4 +1,18 @@
 <template>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-content">
+      <div>
+        <h1>Criar Nota Fiscal</h1>
+      </div>
+      <ul class="navbar-links">
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/invoices">Notas Fiscais</a></li>
+        <li><a href="/profile">{{ capitalizedUserName }}</a></li>
+        <li><a href="/logout">Sair</a></li>
+      </ul>
+    </div>
+  </nav>
   <div class="add-products-container">
     <h1>Adicionar Produtos</h1>
     <!-- Formulário para adicionar produtos -->
@@ -61,11 +75,7 @@
       <button type="submit" :disabled="isCreatingStore" class="btn-primary">
         Adicionar Produto
       </button>
-      <button 
-        type="button" 
-        @click="goBack" 
-        class="btn-secondary"
-      >
+      <button type="button" @click="goBack" class="btn-secondary">
         Voltar
       </button>
     </form>
@@ -186,26 +196,44 @@ export default {
 </script>
 
 <style scoped>
-/* Paleta de cores do Softex PE */
-:root {
-  --orange-soft: #ff6a00;
-  --gray-light: #f4f4f4;
-  --gray-dark: #333;
-  --white: #fff;
+/* Navbar */
+.navbar {
+  background-color: #333;
+  color: white;
+  padding: 10px 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+
+.navbar-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-links {
+  list-style: none;
+  display: flex;
+  gap: 15px;
+}
+
+.navbar-links a {
+  color: white;
+  text-decoration: none;
 }
 
 .add-products-container {
   max-width: 700px;
   margin: 50px auto;
   padding: 20px;
-  background-color: var(--gray-light);
+  background-color: rgb(199, 195, 195);
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
   text-align: center;
-  color: var(--orange-soft);
+  color: #ff6600;
   margin-bottom: 20px;
 }
 
@@ -222,14 +250,14 @@ form {
 
 label {
   font-weight: bold;
-  color: var(--gray-dark);
+  color: #ff6600;
   margin-bottom: 5px;
 }
 
 input,
 select {
   padding: 10px;
-  border: 1px solid var(--gray-dark);
+  border: 1px solid rgb(83, 82, 82);
   border-radius: 4px;
   font-size: 16px;
 }
@@ -243,8 +271,8 @@ button {
 }
 
 button.btn-primary {
-  background-color: var(--orange-soft);
-  color: var(--white);
+  background-color: #ff6600;
+  color: #ffffff;
   transition: background-color 0.3s;
 }
 
