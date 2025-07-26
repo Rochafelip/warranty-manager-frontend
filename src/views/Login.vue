@@ -8,14 +8,16 @@
     </form>
     <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
 
-    <!-- Botão para navegar para a tela de criação de usuário -->
-    <p>Não tem uma conta? <router-link to="/register"><button class="btn-register">Criar Conta</button></router-link>
+    <p>Não tem uma conta?
+      <router-link to="/register">
+        <button class="btn-register">Criar Conta</button>
+      </router-link>
     </p>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
+import api from '../services/axios';
 
 export default {
   data() {
@@ -27,42 +29,34 @@ export default {
   },
   methods: {
     async handleLogin() {
-      try {        
-        const response = await axios.post('http://localhost:4000/auth/sign_in', {
+      try {
+        const response = await api.post('/auth/sign_in', {
           email: this.email,
           password: this.password,
         });
 
-        console.log(response.headers); // Verifique os headers
-        console.log(response.data);    // Verifique os dados retornados
+        const headers = response.headers;
+        const userData = response.data.data;
 
-        // Obtém o header Authorization
-        const authorizationHeader = response.headers['authorization'];
-
-        // Obtém os dados de autenticação dos headers
-        const userName = response.data.data.name
-        const token = response.headers['access-token'];
-        const client = response.headers['client'];
-        const uid = response.headers['uid'];
-
-        if (!authorizationHeader) {
-          throw new Error('Header Authorization não encontrado.');
+        // Validação básica dos headers
+        if (!headers['access-token'] || !headers['client'] || !headers['uid']) {
+          throw new Error('Headers de autenticação ausentes.');
         }
 
-        // Salva o header Authorization no sessionStorage
-        sessionStorage.setItem('Authorization', authorizationHeader);
-        sessionStorage.setItem('access-token', token);
-        sessionStorage.setItem('client', client);
-        sessionStorage.setItem('uid', uid);
-        sessionStorage.setItem('user.name', userName); 
+        // Armazena headers e nome do usuário
+        sessionStorage.setItem('access-token', headers['access-token']);
+        sessionStorage.setItem('client', headers['client']);
+        sessionStorage.setItem('uid', headers['uid']);
+        sessionStorage.setItem('user.name', userData.name);
 
         this.$router.push('/dashboard');
       } catch (error) {
-        // Trata erros de requisição e conexão
-        if (error.response && error.response.data) {
-          this.errorMessage = error.response.data.errors || 'Erro ao tentar fazer login.';
-        }
         console.error('Erro ao realizar login:', error);
+        if (error.response?.data?.errors) {
+          this.errorMessage = error.response.data.errors.join(', ');
+        } else {
+          this.errorMessage = 'Erro ao tentar fazer login. Verifique suas credenciais ou tente novamente.';
+        }
       }
     },
   },
@@ -90,7 +84,6 @@ export default {
 .login-container button {
   padding: 10px 20px;
   background: #ff7f00;
-  /* cor laranja */
   color: white;
   border: none;
   border-radius: 5px;

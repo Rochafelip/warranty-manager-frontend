@@ -20,7 +20,7 @@ const routes = [
     component: Login,
   },
   {
-    path: '/register', // Rota para a tela de registro
+    path: '/register', 
     name: 'Register',
     component: Register,
   },
