@@ -9,15 +9,17 @@
           <li><router-link to="/dashboard">Dashboard</router-link></li>
           <li><router-link to="/invoices">Notas Fiscais</router-link></li>
           <li><router-link to="/profile">{{ capitalizedUserName }}</router-link></li>
-          <li><router-link to="/logout">Sair</router-link></li>
+          <li>
+            <a href="#" @click.prevent="logout">Sair</a>
+          </li>
         </ul>
       </div>
     </nav>
 
     <div class="dashboard-container">
       <div class="actions">
-        <button @click="addInvoice" class="btn-primary">Adicionar Nota Fiscal</button>
-        <button @click="fetchInvoices" class="btn-secondary">Sincronizar Notas Fiscais</button>
+        <button @click="addInvoice">Adicionar Nota Fiscal</button>
+        <button @click="fetchInvoices">Sincronizar Notas Fiscais</button>
       </div>
 
       <p v-if="isLoading" class="loading">Carregando notas fiscais...</p>
@@ -39,25 +41,25 @@
             <td class="invoice-number">{{ invoice.invoice_number }}</td>
             <td>{{ formatDate(invoice.issue_date) }}</td>
             <td>
-              <ul v-if="invoice.products && invoice.products.length">
+              <ul v-if="invoice.products.length">
                 <li v-for="product in invoice.products" :key="product.id">{{ product.name }}</li>
               </ul>
               <span v-else>Sem produtos</span>
             </td>
             <td>
-              <ul v-if="invoice.products && invoice.products.length">
-                <li v-for="product in invoice.products" :key="product.id">{{ product.store.name }}</li>
+              <ul v-if="invoice.products.length">
+                <li v-for="product in invoice.products" :key="product.id">{{ product.store?.name || '--' }}</li>
               </ul>
               <span v-else>--</span>
             </td>
             <td>
-              <ul v-if="invoice.products && invoice.products.length">
-                <li v-for="product in invoice.products" :key="product.id">R$ {{ product.price.toFixed(2) }}</li>
+              <ul v-if="invoice.products.length">
+                <li v-for="product in invoice.products" :key="product.id">R$ {{ product.price?.toFixed(2) || '0.00' }}</li>
               </ul>
               <span v-else>--</span>
             </td>
             <td>
-              <ul v-if="invoice.products && invoice.products.length">
+              <ul v-if="invoice.products.length">
                 <li v-for="product in invoice.products" :key="product.id">{{ checkWarrantyStatus(product.warranty_expiry_date) }}</li>
               </ul>
               <span v-else>--</span>
@@ -81,24 +83,28 @@
     </div>
   </div>
 </template>
-
 <script>
 import api from '../services/axios';
 
 export default {
   data() {
     return {
-      userName: sessionStorage.getItem('user.name') || 'nome',
+      userName: sessionStorage.getItem('user.name') || 'usuário',
       invoices: [],
       isLoading: false,
     };
   },
   computed: {
     capitalizedUserName() {
-      return this.userName ? this.userName.charAt(0).toUpperCase() + this.userName.slice(1) : '';
+      return this.userName.charAt(0).toUpperCase() + this.userName.slice(1);
     },
   },
   methods: {
+    formatDate(date) {
+      const d = new Date(date);
+      return d.toLocaleDateString('pt-BR');
+    },
+
     checkWarrantyStatus(expiryDate) {
       const today = new Date();
       const expiry = new Date(expiryDate);
@@ -108,30 +114,47 @@ export default {
     async fetchInvoices() {
       this.isLoading = true;
       try {
-        const invoiceResponse = await api.get('/invoices');
-        const productResponse = await api.get('/products');
+        const [invoiceRes, productRes] = await Promise.all([
+          api.get('/invoices'),
+          api.get('/products'),
+        ]);
 
-        const invoices = invoiceResponse.data;
-        const products = productResponse.data;
+        const invoices = invoiceRes.data;
+        const products = productRes.data;
 
+        // Associa produtos + loja direto para cada invoice
         invoices.forEach(invoice => {
-          invoice.products = products.filter(product => product.invoice_id === invoice.id);
+          invoice.products = products.filter(p => p.invoice_id === invoice.id);
         });
 
         this.invoices = invoices;
       } catch (error) {
-        console.error('Erro ao sincronizar notas fiscais:', error);
+        console.error('Erro ao buscar notas fiscais:', error);
+        alert('Erro ao buscar as notas fiscais. Verifique se está autenticado.');
       } finally {
         this.isLoading = false;
       }
     },
+    async logout() {
+      try {
+        await api.delete('/auth/sign_out', {
+          headers: {
+            'access-token': sessionStorage.getItem('access-token'),
+            client: sessionStorage.getItem('client'),
+            uid: sessionStorage.getItem('uid'),
+          }
+        });
 
-    formatDate(date) {
-      const d = new Date(date);
-      const day = String(d.getDate()).padStart(2, '0');
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const year = d.getFullYear();
-      return `${day}/${month}/${year}`;
+        sessionStorage.clear();
+        this.$router.push('/login'); // redireciona para a página de login
+      } catch (error) {
+        console.error('Erro ao fazer logout:', error);
+        alert('Não foi possível fazer logout. Tente novamente.');
+      }
+    },
+
+    addInvoice() {
+      this.$router.push('/create-invoice');
     },
 
     viewDetails(id) {
@@ -139,35 +162,28 @@ export default {
     },
 
     editInvoice(id) {
-      this.$router.push(`/invoices/edit/${id}`);
+      this.$router.push(`/invoices/${id}/edit`);
     },
 
     async deleteInvoice(id) {
-      if (!confirm("Tem certeza que deseja excluir esta nota fiscal? Esta ação não pode ser desfeita!")) {
-        return;
-      }
+      if (!confirm("Tem certeza que deseja excluir esta nota fiscal?")) return;
       try {
         await api.delete(`/invoices/${id}`);
         alert("Nota fiscal excluída com sucesso!");
         this.fetchInvoices();
-      } catch (error) {
-        console.error("Erro ao excluir a nota fiscal:", error);
-        alert("Ocorreu um erro ao excluir a nota fiscal. Tente novamente.");
+      } catch (err) {
+        console.error("Erro ao excluir a nota fiscal:", err);
+        alert("Erro ao excluir. Verifique sua conexão ou permissões.");
       }
-    },
-
-    addInvoice() {
-      this.$router.push('/create-invoice');
-    },
+    }
   },
   mounted() {
     this.fetchInvoices();
-  },
+  }
 };
 </script>
 
 <style scoped>
-/* Botões de Ação */
 .btn-icon {
   display: inline-flex;
   align-items: center;

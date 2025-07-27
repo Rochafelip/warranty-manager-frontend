@@ -1,6 +1,5 @@
 <template>
     <div class="app-container">
-      <!-- Navbar -->
       <nav class="navbar">
         <div class="navbar-content">
           <div>
@@ -15,24 +14,27 @@
         </div>
       </nav>
   
-      <!-- Container principal -->
       <div class="dashboard-container">
         <h2>Detalhes da Nota Fiscal</h2>
         <div v-if="invoice" class="invoice-details">
-          <!-- Informações básicas da Nota Fiscal -->
+
           <div class="info-section">
             <p><strong>Nota Fiscal:</strong> {{ invoice.invoice_number }}</p>
             <p><strong>Data de Compra:</strong> {{ formatDate(invoice.purchase_date) }}</p>
             <p><strong>Data de Emissão:</strong> {{ formatDate(invoice.issue_date) }}</p>
-            <p>
-              <strong>Visualizar Nota Fiscal:</strong>
-              <a :href="invoice.pdf_url" target="_blank" rel="noopener noreferrer" class="link">
-                Abrir PDF
-              </a>
-            </p>
+              <p>
+                <strong>Visualizar Nota Fiscal:</strong>
+                <span v-if="invoice.pdf_url && invoice.pdf_url.length > 0">
+                  <a :href="invoice.pdf_url" target="_blank" rel="noopener noreferrer" class="link">
+                    Abrir PDF
+                  </a>
+                </span>
+                <span v-else class="error-message">
+                  PDF não disponível.
+                </span>
+              </p>
           </div>
   
-          <!-- Produtos associados à Nota Fiscal -->
           <h2>Produtos Comprados</h2>
           <ul class="products-list">
             <li v-for="product in products" :key="product.id" class="product-item">
@@ -43,7 +45,7 @@
                 <strong>Preço:</strong> R$ {{ formatPrice(product.price) }}<br />
                 <strong>Garantia Válida até:</strong> {{ formatDate(product.warranty_expiry_date) }}<br />
               </div>
-              <!-- Informações da loja associada -->
+
               <div class="store-info">
                 <h4>Loja</h4>
                 <strong>Nome:</strong> {{ product.store.name }}<br />
@@ -57,57 +59,45 @@
       </div>
     </div>
   </template>
-  
+
   <script>
-  import axios from "axios";
-  
+  import api from '../services/axios';
+
   export default {
-    props: ["id"], // Recebe o ID da invoice como parâmetro
     data() {
       return {
-        invoice: null, // Dados da invoice
-        products: [], // Produtos relacionados à invoice
+        invoice: null,
+        isLoading: false,
       };
     },
-    methods: {
-      async fetchInvoiceDetails() {
-        try {
-          const invoiceResponse = await axios.get(
-            `http://localhost:4000/invoices/${this.id}`,
-            {
-              headers: {
-                Authorization: sessionStorage.getItem("Authorization"),
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          this.invoice = invoiceResponse.data;
-  
-          const productResponse = await axios.get(
-            `http://localhost:4000/products?q[invoice_id_eq]=${this.id}`,
-            {
-              headers: {
-                Authorization: sessionStorage.getItem("Authorization"),
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          this.products = productResponse.data;
-        } catch (error) {
-          console.error("Erro ao buscar dados:", error);
-        }
+    computed: {
+      capitalizedUserName() {
+        const name = localStorage.getItem('userName') || 'Usuário';
+        return name.charAt(0).toUpperCase() + name.slice(1);
       },
-      formatDate(date) {
-        if (!date) return "Data inválida";
-        const [year, month, day] = date.split("-");
-        return `${day}/${month}/${year}`;
-      },
-      formatPrice(price) {
-        return parseFloat(price).toFixed(2).replace(".", ",");
+      products() {
+        return this.invoice?.products || [];
       },
     },
-    mounted() {
-      this.fetchInvoiceDetails();
+    methods: {
+      formatDate(dateStr) {
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+        return new Date(dateStr).toLocaleDateString('pt-BR', options);
+      },
+      formatPrice(price) {
+        return Number(price).toFixed(2).replace('.', ',');
+      },
+    },
+    async mounted() {
+      this.isLoading = true;
+      try {
+        const response = await api.get(`/invoices?q[id_eq]=${this.$route.params.id}`);
+        this.invoice = response.data[0] || null;
+      } catch (error) {
+        console.error('Erro ao buscar a nota fiscal:', error);
+      } finally {
+        this.isLoading = false;
+      }
     },
   };
   </script>
@@ -152,6 +142,12 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
+  }
+  
+
+  .error-message {
+  color: red;
+  font-weight: bold;
   }
   
   .btn-icon:hover {

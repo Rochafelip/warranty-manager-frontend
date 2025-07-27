@@ -41,13 +41,13 @@ const routes = [
     name: 'CreateProduct',
     component: CreateProduct,
     props: true,
-    meta: { requiresAuth: true }, // Adiciona a proteção de autenticação
+    meta: { requiresAuth: true }, 
   },
   {
-    path: '/invoice-details/:id',  // Passando o ID da invoice pela URL
+    path: '/invoice-details/:id',  
     name: 'InvoiceDetails',
     component: InvoiceDetails,
-    props: true,  // Passa os parâmetros como props para o componente
+    props: true,  
   },
   {
     path: '/invoices/edit/:id',
@@ -69,8 +69,7 @@ const routes = [
     component: ChangeStore,    
     props: true, 
     meta: { requiresAuth: true },
-  }
-
+  },
   // {
   //   path: '/add-store/:invoiceId',
   //   name: 'AddStore',
